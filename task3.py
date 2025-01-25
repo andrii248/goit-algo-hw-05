@@ -125,67 +125,71 @@ def rabin_karp_search(text, pattern, prime=101):
 
 
 # Substrings for testing
-existing_substring1 = "existing substring in article1"
-nonexistent_substring1 = "nonexistent substring in article1"
-existing_substring2 = "existing substring in article2"
-nonexistent_substring2 = "nonexistent substring in article2"
+existing_substring1 = article1[:50]  # First 50 characters of article1
+nonexistent_substring1 = "this substring does not exist in article1"
+existing_substring2 = article2[:50]  # First 50 characters of article2
+nonexistent_substring2 = "this substring does not exist in article2"
 
 # Benchmarking with timeit
 setup_code = """
 from __main__ import kmp_search, boyer_moore_search, rabin_karp_search, article1, article2
 """
 test_cases = [
+    ("kmp_search(article1, existing_substring1)", "KMP Article 1 Existing"),
+    ("kmp_search(article1, nonexistent_substring1)", "KMP Article 1 Non-Existing"),
+    ("kmp_search(article2, existing_substring2)", "KMP Article 2 Existing"),
+    ("kmp_search(article2, nonexistent_substring2)", "KMP Article 2 Non-Existing"),
     (
-        'kmp_search(article1, "existing substring in article1")',
-        "KMP Article 1 Existing",
-    ),
-    (
-        'kmp_search(article1, "nonexistent substring in article1")',
-        "KMP Article 1 Non-Existing",
-    ),
-    (
-        'kmp_search(article2, "existing substring in article2")',
-        "KMP Article 2 Existing",
-    ),
-    (
-        'kmp_search(article2, "nonexistent substring in article2")',
-        "KMP Article 2 Non-Existing",
-    ),
-    (
-        'boyer_moore_search(article1, "existing substring in article1")',
+        "boyer_moore_search(article1, existing_substring1)",
         "Boyer-Moore Article 1 Existing",
     ),
     (
-        'boyer_moore_search(article1, "nonexistent substring in article1")',
+        "boyer_moore_search(article1, nonexistent_substring1)",
         "Boyer-Moore Article 1 Non-Existing",
     ),
     (
-        'boyer_moore_search(article2, "existing substring in article2")',
+        "boyer_moore_search(article2, existing_substring2)",
         "Boyer-Moore Article 2 Existing",
     ),
     (
-        'boyer_moore_search(article2, "nonexistent substring in article2")',
+        "boyer_moore_search(article2, nonexistent_substring2)",
         "Boyer-Moore Article 2 Non-Existing",
     ),
     (
-        'rabin_karp_search(article1, "existing substring in article1")',
+        "rabin_karp_search(article1, existing_substring1)",
         "Rabin-Karp Article 1 Existing",
     ),
     (
-        'rabin_karp_search(article1, "nonexistent substring in article1")',
+        "rabin_karp_search(article1, nonexistent_substring1)",
         "Rabin-Karp Article 1 Non-Existing",
     ),
     (
-        'rabin_karp_search(article2, "existing substring in article2")',
+        "rabin_karp_search(article2, existing_substring2)",
         "Rabin-Karp Article 2 Existing",
     ),
     (
-        'rabin_karp_search(article2, "nonexistent substring in article2")',
+        "rabin_karp_search(article2, nonexistent_substring2)",
         "Rabin-Karp Article 2 Non-Existing",
     ),
 ]
 
 # Execute benchmarks
+results = {}
 for test_case, description in test_cases:
-    time_taken = timeit.timeit(test_case, setup=setup_code, number=10)
+    time_taken = timeit.timeit(
+        test_case, setup=setup_code, globals=globals(), number=10
+    )
     print(f"{description}: {time_taken:.6f} seconds")
+    results[description] = time_taken
+
+# Conclusions
+print("\nConclusions:")
+for article in ["Article 1", "Article 2"]:
+    article_results = {key: value for key, value in results.items() if article in key}
+    fastest_algorithm = min(article_results, key=article_results.get)
+    print(
+        f"Fastest for {article}: {fastest_algorithm} with {results[fastest_algorithm]:.6f} seconds"
+    )
+
+overall_fastest = min(results, key=results.get)
+print(f"Overall fastest: {overall_fastest} with {results[overall_fastest]:.6f} seconds")
